@@ -3,6 +3,7 @@ import os
 from tkinter import messagebox
 from password_generator import generate_password
 from pyperclip import copy
+import json
 
 main_dir = os.path.dirname(__file__)
 
@@ -24,21 +25,23 @@ if __name__ == '__main__':
         website = website_input.get()
         username = username_input.get()
         password = password_input.get()
+        new_data = {
+            website: {
+                "email": username,
+                "password": password,
+            }
+        }
 
         if website == "" or password == "":
             messagebox.showinfo(title="Error", message="All fields are required!")
-            response = False
         else:
-            response = messagebox.askokcancel(title="Confirm credentials",
-                                              message=f"Website: {website}\nEmail/Username: {username}"
-                                                      f"\nPassword: {password}")
-
-        if response:
-            with open(main_dir + "./passwords.txt", mode="a") as file:
-                file.writelines(f"Website: {website} | Email/Username: {username}"
-                                f" | Password: {password}\n")
-                website_input.delete(0, END)
-                password_input.delete(0, END)
+            with open(main_dir + "./passwords.json", mode="r") as file:
+                data = json.load(file)
+                data.update(new_data)
+            with open(main_dir + "./passwords.json", "w") as file:
+                json.dump(data, file, indent=4)
+            website_input.delete(0, END)
+            password_input.delete(0, END)
 
 
     canvas = Canvas(width=200, height=200)
